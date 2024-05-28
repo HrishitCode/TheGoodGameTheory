@@ -1,23 +1,35 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import BeerCard from './components/BeerCard';
+import SearchBar from './components/SearchBar';
 import './App.css';
 
-function App() {
+const App = () => {
+  const [beers, setBeers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    axios.get('https://api.sampleapis.com/beers/ale')
+      .then(response => setBeers(response.data))
+      .catch(error => console.error('Error fetching the beers:', error));
+  }, []);
+
+  const handleSearch = (term) => {
+    setSearchTerm(term.toLowerCase());
+  };
+
+  const filteredBeers = beers.filter(beer =>
+    beer.name.toLowerCase().includes(searchTerm)
+  );
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <SearchBar onSearch={handleSearch} />
+      <div className="beer-list">
+        {filteredBeers.map(beer => (
+          <BeerCard key={beer.id} beer={beer} />
+        ))}
+      </div>
     </div>
   );
 }
